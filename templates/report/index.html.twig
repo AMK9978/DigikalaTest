@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello ReportController!{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper {
+            margin: 1em auto;
+            max-width: 800px;
+            width: 95%;
+            font: 18px/1.5 sans-serif;
+        }
+
+        .example-wrapper code {
+            background: #F5F5F5;
+            padding: 2px 6px;
+        }
+    </style>
+
+    <div class="topnav">
+        <input type="text" placeholder="Search by phone number..">
+        <button id="search_btn" name="search_btn" type="button">Search!</button>
+    </div>
+
+    <div class="example-wrapper">
+        <h1>Hello! This is {{ controller_name }}! ✅</h1>
+    </div>
+
+    <div class="example-wrapper">
+        <h2>Percentage of API 1 faults: {{ api_faults1 * 100 }}% ✅</h2>
+        <h2>Percentage of API 2 faults: {{ api_faults2 * 100 }}% ✅</h2>
+    </div>
+    <div class="example-wrapper">
+        <h2>Percentage of using API 1: {{ sms_logs1 * 100 }}% ✅</h2>
+        <h2>Percentage of using API 2: {{ sms_logs2 * 100 }}% ✅</h2>
+    </div>
+
+
+    <div class="example-wrapper">
+        <h3>Any SMS:</h3>
+        <div class="example-wrapper">
+            {% for sms in all_sms %}
+                <h4>SMS: {{ sms }}</h4>
+            {% endfor %}
+        </div>
+
+    </div>
+
+    <div class="example-wrapper">
+        <h3>The top 10 numbers:</h3>
+
+        <div class="example-wrapper">
+            {% for number in top_10 %}
+                <h4>{{ loop.index }}-Phone number: {{ number }}</h4>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

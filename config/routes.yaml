@@ -1,3 +1,19 @@
 #index:
 #    path: /
 #    controller: App\Controller\DefaultController::index
+sendSMS:
+  path: /sendSMS
+  controller: App\Controller\SMSController::sendSMS
+
+createSMS:
+  path: /createSMS
+  controller: App\Controller\SMSController::createSMS
+
+index:
+  path: /
+  controller: App\Controller\ReportController::index
+
+search:
+  path: /search
+  controller: App\Controller\ReportController::search
+

@@ -38,7 +38,8 @@
         "symfony/web-link": "5.2.*",
         "symfony/yaml": "5.2.*",
         "twig/extra-bundle": "^2.12|^3.0",
-        "twig/twig": "^2.12|^3.0"
+        "twig/twig": "^2.12|^3.0",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "symfony/browser-kit": "5.x-dev",
