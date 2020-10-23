@@ -33,7 +33,6 @@ class SMSLogRepository extends ServiceEntityRepository
             $all_sms = $entityManager->createQueryBuilder()
                 ->select("p")
                 ->from('App\Entity\SMS', 'p')->getQuery()->getResult();
-            var_dump(serialize($all_sms));
             RedisController::getInstance()->set("all_sms", serialize($all_sms));
             $this->expireKey("all_sms", 5 * 60);
             return $all_sms;
@@ -162,8 +161,8 @@ class SMSLogRepository extends ServiceEntityRepository
     {
         $entityManager = $this->getEntityManager();
         return $entityManager->createQuery('
-                SELECT *
-                FROM App\Entity\SMSLog p
+                SELECT p
+                FROM App\Entity\SMS p
                 WHERE p.number = :number
                 ')->setParameter('number', $number)->getResult();
     }

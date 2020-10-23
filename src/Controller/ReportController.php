@@ -6,6 +6,7 @@ use App\Entity\SMS;
 use App\Entity\SMSLog;
 use App\Repository\SMSLogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -40,15 +41,16 @@ class ReportController extends AbstractController
     /**
      * @Route("/search", name="search")
      * @param SMSLogRepository $smsLogRepository
-     * @param string $number
+     * @param Request $request
      * @return Response
      */
-    public function search(SMSLogRepository $smsLogRepository, string $number)
+    public function search(SMSLogRepository $smsLogRepository, Request $request)
     {
+        $number = $request->request->get("number");
         $res = $smsLogRepository->searchLogs($number);
-
-        return $this->render('report/index.html.twig', [
-            'logs' => $res
+        return $this->render('report/search.html.twig', [
+            'all_sms' => $res,
+            'number' => $number
         ]);
     }
 }

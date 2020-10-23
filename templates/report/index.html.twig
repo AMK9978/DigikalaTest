@@ -17,10 +17,9 @@
         }
     </style>
 
-    <div class="topnav">
-        <input type="text" placeholder="Search by phone number..">
-        <button id="search_btn" name="search_btn" type="button">Search!</button>
-    </div>
+    <form action="{{ path('search') }}" method="post">
+        <input id="number" type="text" name="number" placeholder="Search by phone number..">
+    </form>
 
     <div class="example-wrapper">
         <h1>Hello! This is {{ controller_name }}! ✅</h1>
