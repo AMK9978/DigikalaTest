@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0ec11e923aa7a3adc8f84f8357eb5180",
+    "content-hash": "220727b01d477c83ff029b3d74be3c5f",
     "packages": [
         {
             "name": "composer/package-versions-deprecated",
@@ -2217,6 +2217,64 @@
                 "psr-3"
             ],
             "time": "2020-09-18T06:44:51+00:00"
+        },
+        {
+            "name": "rybakit/msgpack",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/rybakit/msgpack.php.git",
+                "reference": "6c8b5c119e6dd81a81a526777270e9144f9abdd4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/rybakit/msgpack.php/zipball/6c8b5c119e6dd81a81a526777270e9144f9abdd4",
+                "reference": "6c8b5c119e6dd81a81a526777270e9144f9abdd4",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.1"
+            },
+            "require-dev": {
+                "ext-decimal": "*",
+                "ext-gmp": "*",
+                "friendsofphp/php-cs-fixer": "^2.14",
+                "phpunit/phpunit": "^7.1|^8.0"
+            },
+            "suggest": {
+                "ext-decimal": "For converting overflowed integers to Decimal objects",
+                "ext-gmp": "For converting overflowed integers to GMP objects"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "MessagePack\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eugene Leonovich",
+                    "email": "gen.work@gmail.com"
+                }
+            ],
+            "description": "A pure PHP implementation of the MessagePack serialization format.",
+            "keywords": [
+                "messagepack",
+                "msgpack",
+                "pure",
+                "streaming"
+            ],
+            "funding": [
+                {
+                    "url": "https://github.com/rybakit",
+                    "type": "github"
+                }
+            ],
+            "time": "2020-05-02T23:50:29+00:00"
         },
         {
             "name": "sensio/framework-extra-bundle",
@@ -8382,11 +8440,11 @@
     "minimum-stability": "dev",
     "stability-flags": {
         "composer/package-versions-deprecated": 20,
-        "doctrine/annotations": 20,
         "doctrine/doctrine-bundle": 20,
         "doctrine/doctrine-migrations-bundle": 20,
         "doctrine/orm": 20,
         "phpdocumentor/reflection-docblock": 20,
+        "rybakit/msgpack": 20,
         "symfony/twig-bundle": 20,
         "symfony/browser-kit": 20,
         "symfony/css-selector": 20,
@@ -8401,7 +8459,8 @@
     "platform": {
         "php": ">=7.2.5",
         "ext-ctype": "*",
-        "ext-iconv": "*"
+        "ext-iconv": "*",
+        "ext-json": "*"
     },
     "platform-dev": [],
     "plugin-api-version": "1.1.0"
