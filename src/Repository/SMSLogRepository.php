@@ -32,7 +32,7 @@ class SMSLogRepository extends ServiceEntityRepository
                 ->select('count(p)')
                 ->from('App\Entity\SMSLog', 'p')
                 ->where('p.hasSent = 1')
-                ->getQuery()->getSingleScalarResult()[0];
+                ->getQuery()->getSingleScalarResult();
             RedisController::getInstance()->set("all_sms", serialize($all_sms));
             $this->expireKey("all_sms", 5 * 60);
             return $all_sms;
