@@ -41,7 +41,7 @@ class SMSLogRepository extends ServiceEntityRepository
                     ->getQuery()->getSingleScalarResult();
             } catch (NoResultException | NonUniqueResultException $e) {
                 $this->logger->error("Exception at line 43 getAllSMS raised:" . $e->getMessage());
-                $all_sms = [];
+                $all_sms = 0;
             }
             RedisController::getInstance()->set("all_sms", serialize($all_sms));
             $this->expireKey("all_sms", 5 * 60);
@@ -75,7 +75,7 @@ class SMSLogRepository extends ServiceEntityRepository
                     ->getQuery()->getSingleScalarResult();
             } catch (NoResultException | NonUniqueResultException $e) {
                 $this->logger->error("Exception at line 77 getAPIUsage raised: " . $e->getMessage());
-                $api_usage = [];
+                $api_usage = 0;
             }
             try {
                 $all_usages = $entityManager->createQueryBuilder()
@@ -84,7 +84,7 @@ class SMSLogRepository extends ServiceEntityRepository
                     ->getQuery()->getSingleScalarResult();
             } catch (NoResultException | NonUniqueResultException $e) {
                 $this->logger->error("Exception at line 86 getAPIUsage raised: " . $e->getMessage());
-                $all_usages = [];
+                $all_usages = 1;
             }
 
             RedisController::getInstance()
@@ -133,7 +133,7 @@ class SMSLogRepository extends ServiceEntityRepository
                     ->getQuery()->getSingleScalarResult();
             } catch (NonUniqueResultException | NoResultException $e) {
                 $this->logger->error("Exception at line 135 getAPIFaultPercentage raised: " . $e->getMessage());
-                $api_usage = [];
+                $api_faults = 0;
             }
 
             try {
@@ -145,7 +145,7 @@ class SMSLogRepository extends ServiceEntityRepository
                     ->getQuery()->getSingleScalarResult();
             } catch (NoResultException | NonUniqueResultException $e) {
                 $this->logger->error("Exception at line 147 getAPIUsage raised: " . $e->getMessage());
-                $api_all = [];
+                $api_all = 1;
             }
             if ($api_number == 1) {
                 RedisController::getInstance()->set("api1_all", $api_all);
