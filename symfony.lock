@@ -150,6 +150,9 @@
     "ralouphie/getallheaders": {
         "version": "3.0.3"
     },
+    "rybakit/msgpack": {
+        "version": "dev-master"
+    },
     "sensio/framework-extra-bundle": {
         "version": "5.2",
         "recipe": {
@@ -161,6 +164,15 @@
         "files": [
             "config/packages/sensio_framework_extra.yaml"
         ]
+    },
+    "superbalist/php-pubsub": {
+        "version": "2.0.0"
+    },
+    "superbalist/php-pubsub-redis": {
+        "version": "1.0-dev"
+    },
+    "symfony/amqp-messenger": {
+        "version": "5.x-dev"
     },
     "symfony/asset": {
         "version": "5.x-dev"
@@ -214,6 +226,9 @@
         "version": "2.3-dev"
     },
     "symfony/doctrine-bridge": {
+        "version": "5.x-dev"
+    },
+    "symfony/doctrine-messenger": {
         "version": "5.x-dev"
     },
     "symfony/dom-crawler": {
@@ -311,6 +326,18 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/messenger": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "8a2675c061737658bed85102e9241c752620e575"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
+    },
     "symfony/mime": {
         "version": "5.x-dev"
     },
@@ -396,6 +423,9 @@
         "version": "5.x-dev"
     },
     "symfony/property-info": {
+        "version": "5.x-dev"
+    },
+    "symfony/redis-messenger": {
         "version": "5.x-dev"
     },
     "symfony/routing": {

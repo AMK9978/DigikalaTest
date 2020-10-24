@@ -6,6 +6,7 @@ use App\Entity\SMS;
 use App\Entity\SMSLog;
 use App\Repository\SMSLogRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -18,8 +19,7 @@ class ReportController extends AbstractController
      */
     public function index(SMSLogRepository $smsLogRepository)
     {
-        $all_sms = $this->getDoctrine()->getManager()
-            ->getRepository(SMS::class)->findAll();
+        $all_sms = $smsLogRepository->getAllSMS();
         $sms_logs1 = $smsLogRepository->getAPIUsage(1);
         $sms_logs2 = $smsLogRepository->getAPIUsage(2);
         $api_faults1 = $smsLogRepository->getAPIFaultPercentage(1);
@@ -33,7 +33,7 @@ class ReportController extends AbstractController
             'sms_logs2' => $sms_logs2,
             'api_faults1' => $api_faults1,
             'api_faults2' => $api_faults2,
-            'top_10' => $top_10[0],
+            'top_10' => $top_10,
         ]);
     }
 
@@ -41,16 +41,16 @@ class ReportController extends AbstractController
     /**
      * @Route("/search", name="search")
      * @param SMSLogRepository $smsLogRepository
-     * @param string $number
+     * @param Request $request
      * @return Response
      */
-    public function search(SMSLogRepository $smsLogRepository, string $number)
+    public function search(SMSLogRepository $smsLogRepository, Request $request)
     {
+        $number = $request->request->get("number");
         $res = $smsLogRepository->searchLogs($number);
-
-        return $this->render('report/index.html.twig', [
-            'controller_name' => 'ReportController',
-            'logs' => $res
+        return $this->render('report/search.html.twig', [
+            'all_sms' => $res,
+            'number' => $number
         ]);
     }
 }

@@ -2,13 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Message\SMSMessage;
 use App\Entity\SMS;
+use Symfony\Component\HttpClient\HttpClient;
 use App\Entity\SMSLog;
 use Carbon\Carbon;
-use GuzzleHttp\Exception\GuzzleException;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use GuzzleHttp\Client;
 
 
 class SMSController extends AbstractController
@@ -16,47 +20,41 @@ class SMSController extends AbstractController
 
     /**
      * @Route("/create_sms", name="createSMS")
-     * @param string $number
-     * @param string $body
-     * @return SMS
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function createSMS(string $number, string $body): SMS
+    public function createSMS(Request $request): JsonResponse
     {
+        $number = $request->request->get("number");
+        $body = $request->request->get("body");
         $sms = new SMS();
         $sms->setBody($body);
         $sms->setPhoneNumber($number);
         $this->getDoctrine()->getManager()->persist($sms);
         $this->getDoctrine()->getManager()->flush();
-        return $sms;
+        $request->request->set("sms_id", $sms->getId());
+        $this->sendSMS($request);
+        return new JsonResponse(["sms" => json_encode($sms)], 200);
     }
 
 
     /**
      * @Route("/sendSMS", name="sendSMS")
-     * @param SMS $sms
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function sendSMS(SMS $sms)
+    public function sendSMS(Request $request)
     {
+        $smsMessage = new SMSMessage($request->request->get('sms_id'));
         try {
             $number = random_int(1, 2);
-            if ($number == 1) {
-                $this->sendAPI1($sms);
-            } else {
-                $this->sendAPI2($sms);
-            }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
+            return new JsonResponse(['msg' =>
+                'Random systems are not available'], 503);
         }
-
-    }
-
-    public function sendAPI1(SMS $sms)
-    {
-        $this->sendAPI(1, $sms);
-    }
-
-    public function sendAPI2(SMS $sms)
-    {
-        $this->sendAPI(2, $sms);
+        $smsMessage->setSmsHostApi($number);
+        $this->sendAPI($number, $smsMessage);
+        return new JsonResponse(["msg" => "your request's queued"], 200);
     }
 
     public function log(int $api_number, int $sms_id, bool $hasSent)
@@ -71,46 +69,32 @@ class SMSController extends AbstractController
     }
 
 
-    public function sendAPI(int $api_number, SMS $sms)
+    public function sendAPI(int $api_number, SMSMessage $smsMessage)
     {
-        $client = new Client([
-            // Base URI is used with relative requests
-            'base_uri' => 'http://localhost',
-            'timeout' => 2.0,
-        ]);
-        if ($api_number == 1) {
-            $url = 'localhost:81/sms/send/?number=' .
-                $sms->getNumber() . '&body=' . $sms->getBody();
-            try {
-                $response = $client->get($url);
-                echo $response->getStatusCode();
-                $this->log($api_number, $sms->getId(), 1);
-                return $response;
-            } catch (GuzzleException $e) {
-                $this->log($api_number, $sms->getId(), 0);
-                $this->pushTaskQueue($sms);
-                throw $e;
-            }
-        } else {
-            $url = 'localhost:82/sms/send/?number=' .
-                $sms->getNumber() . '&body=' . $sms->getBody();
-            try {
-                $response = $client->get($url);
-                echo $response->getStatusCode();
-                $this->log($api_number, $sms->getId(), 1);
-                return $response;
-            } catch (GuzzleException $e) {
-                $this->log($api_number, $sms->getId(), 0);
-                $this->pushTaskQueue($sms);
-                throw $e;
+        $sms = $this->getDoctrine()->getManager()
+            ->find(SMS::class, $smsMessage->getSmsId());
+        $url = $this->getURL($api_number, $sms);
+        try {
+            $client = HttpClient::create();
+            $response = $client->request('GET', $url);
+            $this->log($api_number, $sms->getId(), 1);
+            return $response;
+        } catch (Exception $e) {
+            $this->log($api_number, $sms->getId(), 0);
+            if ($smsMessage->getTtl() == 0) {
+                return new JsonResponse(['msg' => 'Task queued'], 503);
+            } else {
+                $smsMessage->setTtl($smsMessage->getTtl() - 1);
+                return $this->sendAPI($api_number == 1 ? 2 : 1,
+                    $smsMessage);
             }
         }
     }
 
-    public function pushTaskQueue(SMS $sms)
+    public function getURL(int $api_number, SMS $sms): string
     {
-        $this->sendSMS($sms);
+        return 'localhost:8' . $api_number . '/sms/send/?number=' .
+            $sms->getNumber() . '&body=' . $sms->getBody();
     }
-
 
 }
