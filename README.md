@@ -10,3 +10,5 @@ In addition use
 php composer.phar install
 ```
 Use the composer to install dependecies.
+
+And change .env configurations based on your local settings (It's better to create a .env.local in sake of security)
