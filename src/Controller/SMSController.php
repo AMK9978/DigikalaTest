@@ -73,8 +73,7 @@ class SMSController extends AbstractController
     {
         $sms = $this->getDoctrine()->getManager()
             ->find(SMS::class, $smsMessage->getSmsId());
-        $url = 'localhost:8' . $api_number . '/sms/send/?number=' .
-            $sms->getNumber() . '&body=' . $sms->getBody();
+        $url = $this->getURL($api_number, $sms);
         try {
             $client = HttpClient::create();
             $response = $client->request('GET', $url);
@@ -90,6 +89,12 @@ class SMSController extends AbstractController
                     $smsMessage);
             }
         }
+    }
+
+    public function getURL(int $api_number, SMS $sms): string
+    {
+        return 'localhost:8' . $api_number . '/sms/send/?number=' .
+            $sms->getNumber() . '&body=' . $sms->getBody();
     }
 
 }
