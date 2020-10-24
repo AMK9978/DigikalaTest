@@ -11,6 +11,7 @@ use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
@@ -32,10 +33,7 @@ class SMSController extends AbstractController
         $this->getDoctrine()->getManager()->persist($sms);
         $this->getDoctrine()->getManager()->flush();
         $request->request->set("sms_id", $sms->getId());
-        try {
-            $this->sendSMS($request);
-        } catch (Exception $e) {
-        }
+        $this->sendSMS($request);
         return new JsonResponse(["sms" => json_encode($sms)], 200);
     }
 
@@ -44,17 +42,18 @@ class SMSController extends AbstractController
      * @Route("/sendSMS", name="sendSMS")
      * @param Request $request
      * @return JsonResponse
-     * @throws Exception
      */
     public function sendSMS(Request $request)
     {
         $smsMessage = new SMSMessage($request->request->get('sms_id'));
-        $number = random_int(1, 2);
-        $smsMessage->setSmsHostApi($number);
         try {
-            $this->sendAPI($number, $smsMessage);
+            $number = random_int(1, 2);
         } catch (Exception $e) {
+            return new JsonResponse(['msg' =>
+                'Random systems are not available'], 503);
         }
+        $smsMessage->setSmsHostApi($number);
+        $this->sendAPI($number, $smsMessage);
         return new JsonResponse(["msg" => "your request's queued"], 200);
     }
 
@@ -84,7 +83,7 @@ class SMSController extends AbstractController
         } catch (Exception $e) {
             $this->log($api_number, $sms->getId(), 0);
             if ($smsMessage->getTtl() == 0) {
-                throw $e;
+                return new JsonResponse(['msg' => 'Task queued'], 503);
             } else {
                 $smsMessage->setTtl($smsMessage->getTtl() - 1);
                 return $this->sendAPI($api_number == 1 ? 2 : 1,

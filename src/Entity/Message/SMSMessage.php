@@ -4,8 +4,6 @@
 namespace App\Entity\Message;
 
 
-use App\Entity\SMS;
-
 class SMSMessage
 {
     private $sms_id;
