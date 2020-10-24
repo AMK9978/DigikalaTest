@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Message\SMSMessage;
 use App\Entity\SMS;
+use App\Exceptions\SIMSBadDefinitionsException;
 use Symfony\Component\HttpClient\HttpClient;
 use App\Entity\SMSLog;
 use Carbon\Carbon;
@@ -27,9 +28,11 @@ class SMSController extends AbstractController
     {
         $number = $request->request->get("number");
         $body = $request->request->get("body");
-        $sms = new SMS();
-        $sms->setBody($body);
-        $sms->setPhoneNumber($number);
+        try {
+            $sms = new SMS($body, $number);
+        } catch (SIMSBadDefinitionsException $exception) {
+            return new JsonResponse(["msg" => "Your request is invalid"], 400);
+        }
         $this->getDoctrine()->getManager()->persist($sms);
         $this->getDoctrine()->getManager()->flush();
         $request->request->set("sms_id", $sms->getId());

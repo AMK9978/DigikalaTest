@@ -13,9 +13,7 @@ class SMSControllerTest extends TestCase
     public function testGetURL()
     {
         $smsController = new SMSController();
-        $sms = new SMS();
-        $sms->setPhoneNumber(-1);
-        $sms->setBody("");
+        $sms = new SMS("Body", "9034262460");
         $result = $smsController->getURL(-1, $sms);
         $this->assertNotEquals("localhost", $result);
     }
