@@ -5,8 +5,11 @@ namespace App\Repository;
 use App\Controller\RedisController;
 use App\Entity\SMSLog;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\Persistence\ManagerRegistry;
 use MessagePack\Packer;
+use Psr\Log\LoggerInterface;
 
 /**
  * @method SMSLog|null find($id, $lockMode = null, $lockVersion = null)
@@ -16,9 +19,11 @@ use MessagePack\Packer;
  */
 class SMSLogRepository extends ServiceEntityRepository
 {
+    private $logger;
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(LoggerInterface $logger, ManagerRegistry $registry)
     {
+        $this->logger = $logger;
         parent::__construct($registry, SMSLog::class);
     }
 
@@ -28,11 +33,16 @@ class SMSLogRepository extends ServiceEntityRepository
             return unserialize(RedisController::getInstance()->get("all_sms"));
         } else {
             $entityManager = $this->getEntityManager();
-            $all_sms = $entityManager->createQueryBuilder()
-                ->select('count(p)')
-                ->from('App\Entity\SMSLog', 'p')
-                ->where('p.hasSent = 1')
-                ->getQuery()->getSingleScalarResult();
+            try {
+                $all_sms = $entityManager->createQueryBuilder()
+                    ->select('count(p)')
+                    ->from('App\Entity\SMSLog', 'p')
+                    ->where('p.hasSent = 1')
+                    ->getQuery()->getSingleScalarResult();
+            } catch (NoResultException | NonUniqueResultException $e) {
+                $this->logger->error("Exception at line 43 getAllSMS raised:" . $e->getMessage());
+                $all_sms = [];
+            }
             RedisController::getInstance()->set("all_sms", serialize($all_sms));
             $this->expireKey("all_sms", 5 * 60);
             return $all_sms;
@@ -56,16 +66,26 @@ class SMSLogRepository extends ServiceEntityRepository
             }
         } else {
             $entityManager = $this->getEntityManager();
-            $api_usage = $entityManager->createQueryBuilder()
-                ->select('count(p)')
-                ->from('App\Entity\SMSLog', 'p')
-                ->where('p.used_api = :api')
-                ->setParameter('api', $api_number)
-                ->getQuery()->getSingleScalarResult();
-            $all_usages = $entityManager->createQueryBuilder()
-                ->select('count(p)')
-                ->from('App\Entity\SMSLog', 'p')
-                ->getQuery()->getSingleScalarResult();
+            try {
+                $api_usage = $entityManager->createQueryBuilder()
+                    ->select('count(p)')
+                    ->from('App\Entity\SMSLog', 'p')
+                    ->where('p.used_api = :api')
+                    ->setParameter('api', $api_number)
+                    ->getQuery()->getSingleScalarResult();
+            } catch (NoResultException | NonUniqueResultException $e) {
+                $this->logger->error("Exception at line 77 getAPIUsage raised: " . $e->getMessage());
+                $api_usage = [];
+            }
+            try {
+                $all_usages = $entityManager->createQueryBuilder()
+                    ->select('count(p)')
+                    ->from('App\Entity\SMSLog', 'p')
+                    ->getQuery()->getSingleScalarResult();
+            } catch (NoResultException | NonUniqueResultException $e) {
+                $this->logger->error("Exception at line 86 getAPIUsage raised: " . $e->getMessage());
+                $all_usages = [];
+            }
 
             RedisController::getInstance()
                 ->set("all_usages", $all_usages);
@@ -104,19 +124,29 @@ class SMSLogRepository extends ServiceEntityRepository
 
         } else {
             $entityManager = $this->getEntityManager();
-            $api_faults = $entityManager->createQueryBuilder()
-                ->select('count(p)')
-                ->from('App\Entity\SMSLog', 'p')
-                ->where('p.used_api = :api and p.hasSent = 0')
-                ->setParameter('api', $api_number)
-                ->getQuery()->getSingleScalarResult();
+            try {
+                $api_faults = $entityManager->createQueryBuilder()
+                    ->select('count(p)')
+                    ->from('App\Entity\SMSLog', 'p')
+                    ->where('p.used_api = :api and p.hasSent = 0')
+                    ->setParameter('api', $api_number)
+                    ->getQuery()->getSingleScalarResult();
+            } catch (NonUniqueResultException | NoResultException $e) {
+                $this->logger->error("Exception at line 135 getAPIFaultPercentage raised: " . $e->getMessage());
+                $api_usage = [];
+            }
 
-            $api_all = $entityManager->createQueryBuilder()
-                ->select('count(p)')
-                ->from('App\Entity\SMSLog', 'p')
-                ->where('p.used_api = :api')
-                ->setParameter('api', $api_number)
-                ->getQuery()->getSingleScalarResult();
+            try {
+                $api_all = $entityManager->createQueryBuilder()
+                    ->select('count(p)')
+                    ->from('App\Entity\SMSLog', 'p')
+                    ->where('p.used_api = :api')
+                    ->setParameter('api', $api_number)
+                    ->getQuery()->getSingleScalarResult();
+            } catch (NoResultException | NonUniqueResultException $e) {
+                $this->logger->error("Exception at line 147 getAPIUsage raised: " . $e->getMessage());
+                $api_all = [];
+            }
             if ($api_number == 1) {
                 RedisController::getInstance()->set("api1_all", $api_all);
                 RedisController::getInstance()->set("api1_faults", $api_faults);
