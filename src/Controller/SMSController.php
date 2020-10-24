@@ -31,7 +31,11 @@ class SMSController extends AbstractController
         $sms->setPhoneNumber($number);
         $this->getDoctrine()->getManager()->persist($sms);
         $this->getDoctrine()->getManager()->flush();
-
+        $request->request->set("sms_id", $sms->getId());
+        try {
+            $this->sendSMS($request);
+        } catch (Exception $e) {
+        }
         return new JsonResponse(["sms" => json_encode($sms)], 200);
     }
 
@@ -80,7 +84,6 @@ class SMSController extends AbstractController
         } catch (Exception $e) {
             $this->log($api_number, $sms->getId(), 0);
             if ($smsMessage->getTtl() == 0) {
-                $this->pushTaskQueue($sms);
                 throw $e;
             } else {
                 $smsMessage->setTtl($smsMessage->getTtl() - 1);
@@ -89,13 +92,5 @@ class SMSController extends AbstractController
             }
         }
     }
-
-    public function pushTaskQueue(SMS $sms)
-    {
-        $request = new Request(['sms_id' => $sms->getId()]);
-        return;
-//        $this->sendSMS($request);
-    }
-
 
 }

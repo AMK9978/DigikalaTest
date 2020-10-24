@@ -1,0 +1,1 @@
+cd /home/amk/PhpstormProjects/Digikala && export PATH="$HOME/.symfony/bin:$PATH" && symfony console app:sms:send

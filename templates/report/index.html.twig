@@ -35,15 +35,7 @@
     </div>
 
 
-    <div class="example-wrapper">
-        <h3>Any SMS:</h3>
-        <div class="example-wrapper">
-            {% for sms in all_sms %}
-                <h4>SMS: {{ sms }}</h4>
-            {% endfor %}
-        </div>
-
-    </div>
+    <h3>Count of all SMS: {{ all_sms }}</h3>
 
     <div class="example-wrapper">
         <h3>The top 10 numbers:</h3>
@@ -54,4 +46,5 @@
             {% endfor %}
         </div>
     </div>
+
 {% endblock %}
